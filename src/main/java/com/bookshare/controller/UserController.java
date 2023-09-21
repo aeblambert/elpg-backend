@@ -33,4 +33,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody UserRegistrationRequest loginRequest) {
+        try {
+            HashMap<String, String> response = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }
