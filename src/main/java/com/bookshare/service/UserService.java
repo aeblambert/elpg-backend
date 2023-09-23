@@ -44,9 +44,8 @@ public class UserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getHashedPassword())) {
-                // Generate a session token (we'll use a simple one for now, you can replace this with JWT later)
                 String sessionToken = UUID.randomUUID().toString();
-                // In a real-world application, you'd store this token in a more secure way.
+                // TODO: Make more secure
                 user.setSessionToken(sessionToken);
                 userRepository.save(user);
                 HashMap<String, String> response = new HashMap<>();
