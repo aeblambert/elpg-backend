@@ -16,9 +16,6 @@ public class User {
     @Column(nullable = false)
     private String hashedPassword;
 
-    @Column(nullable = true)
-    private String sessionToken;
-
     public Long getId() {
         return id;
     }
@@ -41,11 +38,6 @@ public class User {
 
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
-    }
-
-    public String getSessionToken() { return sessionToken; }
-
-    public void setSessionToken(String sessionToken) {  this.sessionToken = sessionToken;
     }
 
 }
