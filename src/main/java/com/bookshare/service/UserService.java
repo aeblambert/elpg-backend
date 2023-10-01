@@ -55,7 +55,6 @@ public class UserService {
                // userRepository.save(user);  // maybe bring this back later if storing other attributes for user
                 HashMap<String, String> response = new HashMap<>();
                 response.put("message", "Login successful!");
-                System.out.println("Token: " + token);
                 response.put("jwtToken", token);
                 return response;
             } else {
@@ -68,5 +67,36 @@ public class UserService {
             response.put("message", "User not found!");
             return response;
         }
+    }
+    public HashMap<String, String> updateUsername(String email, String newUsername) throws Exception {
+        HashMap<String, String> response = new HashMap<>();
+
+        // Validate username length
+        if (newUsername.length() > 10) {
+            response.put("message", "Username must be a maximum of 10 characters");
+            return response;
+        }
+
+        // 1. Validate that username is unique
+        Optional<User> userWithNewUsername = userRepository.findByUsername(newUsername);
+        if (userWithNewUsername.isPresent()) {
+            response.put("message", "Username already exists");
+            return response;
+        }
+
+        // 2. Find the user by email
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (!optionalUser.isPresent()) {
+            throw new Exception("User with given email not found.");
+        }
+
+        // 3. Update the username in the database for the user identified by the email
+        User user = optionalUser.get();
+        user.setUsername(newUsername);
+        userRepository.save(user);
+
+        // 4. Return a response indicating success
+        response.put("message", "Username updated successfully.");
+        return response;
     }
 }
