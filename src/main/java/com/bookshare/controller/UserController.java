@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,15 +41,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserRegistrationRequest loginRequest) {
         try {
+            System.out.println("in /login");
             HashMap<String, String> response = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
             Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                if (user.getUsername() == null) {
-                    response.put("isFirstLogin", "true");
-                } else {
-                    response.put("isFirstLogin", "false");
-                }
+                response.put("isFirstLogin", String.valueOf(user.getNickname() == null));
             }
 
             return ResponseEntity.ok(response);
@@ -60,15 +56,13 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    @PutMapping("/update-username")
-    public ResponseEntity<?> updateUsername(@RequestBody Map<String, String> payload) {
+    @PostMapping("/set-nickname")
+    public ResponseEntity<?> setNickname(@RequestBody Map<String, String> payload) {
         try {
-            // Extract username and email (or other identifier) from payload
-            String username = payload.get("username");
-            String email = payload.get("email");  // Assuming email is the user identifier here
+            String nickname = payload.get("nickname");
+            String email = payload.get("email");
 
-            // Call the UserService method to update the username
-            HashMap<String, String> response = userService.updateUsername(email, username);
+            HashMap<String, String> response = userService.setNickname(email, nickname);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

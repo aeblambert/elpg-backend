@@ -43,8 +43,9 @@ public class UserService {
         }
     }
     public HashMap<String, String> loginUser(String email, String password) {
+        System.out.println("loginUser, user: " + email);
         Optional<User> userOptional = userRepository.findByEmail(email);
-
+        System.out.println("loginUser, user: " + userOptional);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getHashedPassword())) {
@@ -56,47 +57,51 @@ public class UserService {
                 HashMap<String, String> response = new HashMap<>();
                 response.put("message", "Login successful!");
                 response.put("jwtToken", token);
+                response.put("nickname", user.getNickname());
+                System.out.println("Nickname retrieved: " + user.getNickname());
+                System.out.println(("JwtToken: " + token));
                 return response;
             } else {
+                System.out.println("Invalid passwrd");
                 HashMap<String, String> response = new HashMap<>();
                 response.put("message", "Invalid password!");
                 return response;
             }
         } else {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "User not found!");
+            response.put("message", "Email not registered, please register to continue!!");
             return response;
         }
     }
-    public HashMap<String, String> updateUsername(String email, String newUsername) throws Exception {
+    public HashMap<String, String> setNickname(String email, String newNickname) throws Exception {
         HashMap<String, String> response = new HashMap<>();
 
-        // Validate username length
-        if (newUsername.length() > 10) {
-            response.put("message", "Username must be a maximum of 10 characters");
+        if (newNickname.length() > 10) {
+            response.put("message", "Nickname must be a maximum of 10 characters");
             return response;
         }
 
-        // 1. Validate that username is unique
-        Optional<User> userWithNewUsername = userRepository.findByUsername(newUsername);
-        if (userWithNewUsername.isPresent()) {
-            response.put("message", "Username already exists");
+        Optional<User> userWithNewNickname = userRepository.findByNickname(newNickname);
+        if (userWithNewNickname.isPresent()) {
+            response.put("message", "That nickname is already taken; choose another");
             return response;
         }
 
-        // 2. Find the user by email
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (!optionalUser.isPresent()) {
-            throw new Exception("User with given email not found.");
+        if (optionalUser.isEmpty()) {
+            throw new Exception("User with email address " + email + " does not exist");
+        } else {
+            User user = optionalUser.get();
+            if (user.getNickname() != null) {
+                throw new Exception("Nickname '" + user.getNickname() + "' has already been assigned to this email address");
+            } else {
+                user.setNickname(newNickname);
+                userRepository.save(user);
+
+                // 4. Return a response indicating success
+                response.put("message", "Nickname set successfully");
+                return response;
+            }
         }
-
-        // 3. Update the username in the database for the user identified by the email
-        User user = optionalUser.get();
-        user.setUsername(newUsername);
-        userRepository.save(user);
-
-        // 4. Return a response indicating success
-        response.put("message", "Username updated successfully.");
-        return response;
     }
 }

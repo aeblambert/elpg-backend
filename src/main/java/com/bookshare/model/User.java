@@ -12,8 +12,8 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    @Size(max = 10, message = "Username must be a maximum of 10 characters")
-    private String username;
+    @Size(max = 10, message = "Nickname must be a maximum of 10 characters")
+    private String nickname;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -25,9 +25,9 @@ public class User {
         return id;
     }
 
-    public String getUsername() { return username; }
+    public String getNickname() { return nickname; }
 
-    public void setUsername(String username) { this.username = username; }
+    public void setNickname(String username) { this.nickname = nickname; }
 
     public void setId(Long id) {
         this.id = id;
