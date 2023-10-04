@@ -62,14 +62,14 @@ public class UserService {
                 System.out.println(("JwtToken: " + token));
                 return response;
             } else {
-                System.out.println("Invalid passwrd");
+                System.out.println("Invalid password");
                 HashMap<String, String> response = new HashMap<>();
                 response.put("message", "Invalid password!");
                 return response;
             }
         } else {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Email not registered, please register to continue!!");
+            response.put("message", "Email not registered, please register to continue!");
             return response;
         }
     }
