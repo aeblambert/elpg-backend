@@ -43,15 +43,14 @@ public class UserService {
         }
     }
     public HashMap<String, String> loginUser(String email, String password) {
-        System.out.println("loginUser, user: " + email);
         Optional<User> userOptional = userRepository.findByEmail(email);
-        System.out.println("loginUser, user: " + userOptional);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (passwordEncoder.matches(password, user.getHashedPassword())) {
                 Algorithm algorithm = Algorithm.HMAC256(secret);
                 String token = JWT.create()
                         .withClaim("email", user.getEmail())
+                        .withClaim("nickname", user.getNickname())
                         .sign(algorithm);
                // userRepository.save(user);  // maybe bring this back later if storing other attributes for user
                 HashMap<String, String> response = new HashMap<>();
@@ -69,19 +68,19 @@ public class UserService {
             }
         } else {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "Email not registered, please register to continue!");
+            response.put("message", "Email not registered!");
             return response;
         }
     }
-    public HashMap<String, String> setNickname(String email, String newNickname) throws Exception {
+    public HashMap<String, String> setNickname(String email, String nickname) throws Exception {
         HashMap<String, String> response = new HashMap<>();
 
-        if (newNickname.length() > 10) {
+        if (nickname.length() > 10) {
             response.put("message", "Nickname must be a maximum of 10 characters");
             return response;
         }
 
-        Optional<User> userWithNewNickname = userRepository.findByNickname(newNickname);
+        Optional<User> userWithNewNickname = userRepository.findByNickname(nickname);
         if (userWithNewNickname.isPresent()) {
             response.put("message", "That nickname is already taken; choose another");
             return response;
@@ -95,7 +94,7 @@ public class UserService {
             if (user.getNickname() != null) {
                 throw new Exception("Nickname '" + user.getNickname() + "' has already been assigned to this email address");
             } else {
-                user.setNickname(newNickname);
+                user.setNickname(nickname);
                 userRepository.save(user);
 
                 // 4. Return a response indicating success
