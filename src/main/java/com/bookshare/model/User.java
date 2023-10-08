@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "bookshare_users")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -21,22 +21,25 @@ public class User {
     @Column(nullable = false)
     private String hashedPassword;
 
+    @Column
+    private String district;
+
+    @Column
+    private boolean consentToShare;
+
     public Long getId() {
         return id;
     }
-
-    public String getNickname() { return nickname; }
-
-    public void setNickname(String nickname) { this.nickname = nickname; }
-
     public void setId(Long id) {
         this.id = id;
     }
 
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
+
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -44,9 +47,14 @@ public class User {
     public String getHashedPassword() {
         return hashedPassword;
     }
-
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
     }
+
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
+
+    public boolean isConsentToShare() { return consentToShare; }
+    public void setConsentToShare(boolean consentToShare) { this.consentToShare = consentToShare; }
 
 }

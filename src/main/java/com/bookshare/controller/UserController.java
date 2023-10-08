@@ -1,5 +1,7 @@
 package com.bookshare.controller;
 
+import com.bookshare.dto.NewUserRequest;
+import com.bookshare.dto.UserLoginRequest;
 import com.bookshare.dto.UserRegistrationRequest;
 import com.bookshare.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +38,8 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserRegistrationRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest loginRequest) {
         try {
-            System.out.println("in /login");
             HashMap<String, String> response = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
             Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
             if (userOptional.isPresent()) {
@@ -53,13 +54,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    @PostMapping("/set-nickname")
-    public ResponseEntity<?> setNickname(@RequestBody Map<String, String> payload) {
+    @PostMapping("/new-user")
+    public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUserRequest) {
         try {
-            String nickname = payload.get("nickname");
-            String email = payload.get("email");
+            String nickname = newUserRequest.getNickname();
+            String email = newUserRequest.getEmail();
+            String district = newUserRequest.getDistrict();
+            boolean consentToShare = newUserRequest.getConsent();
 
-            HashMap<String, String> response = userService.setNickname(email, nickname);
+            HashMap<String, String> response = userService.newUser(email, nickname, district, consentToShare);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

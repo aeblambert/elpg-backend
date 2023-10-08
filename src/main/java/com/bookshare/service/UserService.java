@@ -46,23 +46,30 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+            HashMap<String, String> response = new HashMap<>();
+            System.out.println("secret: " + secret + " user.getEmail: " + user.getEmail() + " user.getNickname: " + user.getNickname()) ;
             if (passwordEncoder.matches(password, user.getHashedPassword())) {
-                Algorithm algorithm = Algorithm.HMAC256(secret);
-                String token = JWT.create()
-                        .withClaim("email", user.getEmail())
-                        .withClaim("nickname", user.getNickname())
-                        .sign(algorithm);
-               // userRepository.save(user);  // maybe bring this back later if storing other attributes for user
-                HashMap<String, String> response = new HashMap<>();
-                response.put("message", "Login successful!");
-                response.put("jwtToken", token);
-                response.put("nickname", user.getNickname());
-                System.out.println("Nickname retrieved: " + user.getNickname());
-                System.out.println(("JwtToken: " + token));
-                return response;
+                try {
+                    Algorithm algorithm = Algorithm.HMAC256(secret);
+                    String token = JWT.create()
+                            .withClaim("email", user.getEmail())
+                            .withClaim("nickname", user.getNickname())
+                            .sign(algorithm);
+                // userRepository.save(user);  // maybe bring this back later if storing other attributes for user
+                    response.put("message", "Login successful!");
+                    response.put("jwtToken", token);
+                  response.put("nickname", user.getNickname());
+                    System.out.println("Nickname retrieved: " + user.getNickname());
+                    System.out.println(("JwtToken: " + token));
+                    return response;
+                } catch (Exception e) {
+                    System.out.println(e);
+                    response.put("message", "Invalid JWTToken generated");
+                    return response;
+                }
             } else {
                 System.out.println("Invalid password");
-                HashMap<String, String> response = new HashMap<>();
+                response = new HashMap<>();
                 response.put("message", "Invalid password!");
                 return response;
             }
@@ -72,7 +79,7 @@ public class UserService {
             return response;
         }
     }
-    public HashMap<String, String> setNickname(String email, String nickname) throws Exception {
+    public HashMap<String, String> newUser(String email, String nickname, String district, boolean consentToShare) throws Exception {
         HashMap<String, String> response = new HashMap<>();
 
         if (nickname.length() > 10) {
@@ -95,10 +102,11 @@ public class UserService {
                 throw new Exception("Nickname '" + user.getNickname() + "' has already been assigned to this email address");
             } else {
                 user.setNickname(nickname);
+                user.setDistrict(district);
+                user.setConsentToShare(consentToShare);
                 userRepository.save(user);
 
-                // 4. Return a response indicating success
-                response.put("message", "Nickname set successfully");
+                response.put("message", "User information updated successfully");
                 return response;
             }
         }
