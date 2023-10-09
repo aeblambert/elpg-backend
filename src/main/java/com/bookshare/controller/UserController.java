@@ -55,20 +55,25 @@ public class UserController {
         }
     }
     @PostMapping("/new-user")
-    public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUserRequest) {
+    public ResponseEntity<HashMap<String, String>>  newUser(@RequestBody NewUserRequest newUserRequest) {
         try {
             String nickname = newUserRequest.getNickname();
             String email = newUserRequest.getEmail();
             String district = newUserRequest.getDistrict();
             boolean consentToShare = newUserRequest.getConsent();
 
-            HashMap<String, String> response = userService.newUser(email, nickname, district, consentToShare);
+            return userService.newUser(email, nickname, district, consentToShare);
 
-            return ResponseEntity.ok(response);
+            //HashMap<String, String> response = userService.newUser(email, nickname, district, consentToShare);
+
+          //  ResponseEntity<HashMap<String, String>> responseEntity = userService.newUser(email, nickname, district, consentToShare);
+          //  HashMap<String, String> response = responseEntity.getBody();
+
+  //          return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
+            HashMap<String, String> response = new HashMap<>();
             response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }

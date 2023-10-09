@@ -5,6 +5,9 @@ import com.bookshare.model.User;
 import com.bookshare.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -47,7 +50,6 @@ public class UserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             HashMap<String, String> response = new HashMap<>();
-            System.out.println("secret: " + secret + " user.getEmail: " + user.getEmail() + " user.getNickname: " + user.getNickname()) ;
             if (passwordEncoder.matches(password, user.getHashedPassword())) {
                 try {
                     Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -58,9 +60,7 @@ public class UserService {
                 // userRepository.save(user);  // maybe bring this back later if storing other attributes for user
                     response.put("message", "Login successful!");
                     response.put("jwtToken", token);
-                  response.put("nickname", user.getNickname());
-                    System.out.println("Nickname retrieved: " + user.getNickname());
-                    System.out.println(("JwtToken: " + token));
+                    response.put("nickname", user.getNickname());
                     return response;
                 } catch (Exception e) {
                     System.out.println(e);
@@ -79,18 +79,13 @@ public class UserService {
             return response;
         }
     }
-    public HashMap<String, String> newUser(String email, String nickname, String district, boolean consentToShare) throws Exception {
+    public ResponseEntity<HashMap<String, String>> newUser(String email, String nickname, String district, boolean consentToShare) throws Exception {
         HashMap<String, String> response = new HashMap<>();
-
-        if (nickname.length() > 10) {
-            response.put("message", "Nickname must be a maximum of 10 characters");
-            return response;
-        }
 
         Optional<User> userWithNewNickname = userRepository.findByNickname(nickname);
         if (userWithNewNickname.isPresent()) {
             response.put("message", "That nickname is already taken; choose another");
-            return response;
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -105,9 +100,8 @@ public class UserService {
                 user.setDistrict(district);
                 user.setConsentToShare(consentToShare);
                 userRepository.save(user);
-
                 response.put("message", "User information updated successfully");
-                return response;
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
     }
